@@ -22,6 +22,10 @@ export default function App() {
 
   const [dice, setDice] = useState(allNewDice());
   const [tenzies, setTenzies] = useState(false);
+  const [round, setRound] = useState(0);
+  const [bestScore, setBestScore] = useState(
+    JSON.parse(localStorage.getItem("bestScore")) || ""
+  );
 
   useEffect(() => {
     const allHeld = dice.every((die) => die.isHeld);
@@ -33,16 +37,12 @@ export default function App() {
   }, [dice]);
 
   const rollDice = () => {
-    if (!tenzies) {
-      setDice((oldDice) =>
-        oldDice.map((die) => {
-          return die.isHeld ? die : generateNewDie();
-        })
-      );
-    } else {
-      setTenzies(false);
-      setDice(allNewDice());
-    }
+    setRound((oldRound) => oldRound + 1);
+    setDice((oldDice) =>
+      oldDice.map((die) => {
+        return die.isHeld ? die : generateNewDie();
+      })
+    );
   };
 
   const holdDice = (id) => {
@@ -62,6 +62,16 @@ export default function App() {
     />
   ));
 
+  const startNewGame = () => {
+    if (!bestScore || round < bestScore) {
+      setBestScore(round);
+      localStorage.setItem("bestScore", JSON.stringify(round));
+    }
+    setTenzies(false);
+    setDice(allNewDice());
+    setRound(0);
+  };
+
   return (
     <main>
       {tenzies && <Confetti />}
@@ -70,10 +80,25 @@ export default function App() {
         Roll until all dice are the same. Click each die to freeze it at its
         current value between rolls.
       </p>
+      {!tenzies ? (
+        <h3>Round: {round}</h3>
+      ) : (
+        <h3>
+          You won in {round} round{round > 1 && "s"}!
+        </h3>
+      )}
       <div className="dice-container">{diceElements}</div>
-      <button className="roll-dice" onClick={rollDice}>
-        {tenzies ? "New Game" : "Roll"}
-      </button>
+
+      {!tenzies ? (
+        <button className="action-btn" onClick={rollDice}>
+          Roll
+        </button>
+      ) : (
+        <button className="action-btn" onClick={startNewGame}>
+          New Game
+        </button>
+      )}
+      <h4>Best score: {bestScore}</h4>
     </main>
   );
 }
