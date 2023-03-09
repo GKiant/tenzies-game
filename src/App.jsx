@@ -1,25 +1,9 @@
 import { useEffect, useState } from "react";
-import { nanoid } from "nanoid";
 import Confetti from "react-confetti";
 import Die from "./Die.jsx";
+import { allNewDice, generateNewDie } from "./utils.js";
 
 export default function App() {
-  const allNewDice = () => {
-    const newDice = [];
-    for (let i = 0; i < 10; i++) {
-      newDice.push(generateNewDie());
-    }
-    return newDice;
-  };
-
-  const generateNewDie = () => {
-    return {
-      value: Math.ceil(Math.random() * 6),
-      isHeld: false,
-      id: nanoid(),
-    };
-  };
-
   const [dice, setDice] = useState(allNewDice());
   const [tenzies, setTenzies] = useState(false);
   const [round, setRound] = useState(0);
@@ -28,6 +12,7 @@ export default function App() {
   );
 
   useEffect(() => {
+    console.log("there");
     const allHeld = dice.every((die) => die.isHeld);
     const firstValue = dice[0].value;
     const allSameValue = dice.every((die) => die.value === firstValue);
@@ -74,7 +59,7 @@ export default function App() {
 
   return (
     <main>
-      {tenzies && <Confetti />}
+      {tenzies ? <Confetti /> : null}
       <h1 className="title">Tenzies</h1>
       <p className="instructions">
         Roll until all dice are the same. Click each die to freeze it at its
